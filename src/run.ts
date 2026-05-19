@@ -1,1 +1,1 @@
-export const run = (): Promise<number> => Promise.resolve(0);
+export { run } from './runtime/run.js';

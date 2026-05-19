@@ -43,6 +43,8 @@ export function defineMenuItem<const A extends ArgsSchema>(item: MenuLeaf<A>): M
   return item;
 }
 
+export { run } from './runtime/run.js';
+
 export type {
   ActionContext,
   ActionLog,
