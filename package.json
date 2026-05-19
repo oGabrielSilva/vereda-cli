@@ -1,0 +1,75 @@
+{
+  "name": "vereda",
+  "packageManager": "yarn@4.6.0",
+  "type": "module",
+  "version": "0.0.1",
+  "license": "MIT",
+  "description": "Declarative interactive CLI builder over @clack/core. Define a menu config, get a navigable arrow-key UI with safe action execution and argv routing.",
+  "author": "Gabriel Silva",
+  "homepage": "https://github.com/oGabrielSilva/vereda#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/oGabrielSilva/vereda.git"
+  },
+  "bugs": {
+    "url": "https://github.com/oGabrielSilva/vereda/issues"
+  },
+  "main": "./dist/define-cli.js",
+  "types": "./dist/define-cli.d.ts",
+  "engines": {
+    "node": ">=18"
+  },
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE",
+    "CHANGELOG.md"
+  ],
+  "keywords": [
+    "cli",
+    "interactive",
+    "menu",
+    "clack",
+    "declarative",
+    "tui",
+    "prompt",
+    "arrow-keys",
+    "ESM",
+    "TypeScript"
+  ],
+  "exports": {
+    ".": {
+      "import": "./dist/define-cli.js",
+      "types": "./dist/define-cli.d.ts"
+    },
+    "./run": {
+      "import": "./dist/run.js",
+      "types": "./dist/run.d.ts"
+    }
+  },
+  "scripts": {
+    "build": "tsup",
+    "dev": "tsup --watch",
+    "typecheck": "tsc --noEmit",
+    "lint": "eslint .",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "prepublishOnly": "yarn build"
+  },
+  "dependencies": {
+    "@clack/core": "^1.3.1",
+    "@clack/prompts": "^1.4.0",
+    "mri": "^1.2.0",
+    "picocolors": "^1.1.1"
+  },
+  "devDependencies": {
+    "@eslint/js": "^10.0.1",
+    "@types/node": "^25.9.1",
+    "eslint": "^10.4.0",
+    "strip-ansi": "^7.2.0",
+    "tsup": "^8.5.1",
+    "typescript": "^6.0.3",
+    "typescript-eslint": "^8.59.4",
+    "vitest": "^4.1.6"
+  }
+}
