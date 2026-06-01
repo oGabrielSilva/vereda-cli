@@ -6,7 +6,7 @@ export default defineConfig({
     run: 'src/run.ts',
   },
   format: ['esm'],
-  target: 'node18',
+  target: 'node20',
   dts: { resolve: true },
   sourcemap: true,
   shims: false,

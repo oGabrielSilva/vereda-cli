@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- Minimum supported Node bumped to **20** (`engines.node >= 20`). Node 18 is EOL since April 2025, and the test toolchain (Vitest 4 / Rolldown) requires `node:util.styleText`, which only exists on Node 20+. Build target is now `node20`.
 - Interactive menu now **loops** after each action (returns to the same menu level instead of exiting). The CLI terminates only on `Sair` at root or `Ctrl+C`. Opt out with `interactive: 'one-shot'` for wizard-style flows.
 - Raw `err.message` is no longer printed to end-users when an action throws. The library shows a generic `theme.messages.error` string. Use `onActionError(err, ctx)` to handle errors programmatically.
 

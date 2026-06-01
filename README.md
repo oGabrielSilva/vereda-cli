@@ -8,7 +8,7 @@ Built on top of [`@clack/core`](https://github.com/bombshell-dev/clack). Adds:
 - argv routing via [`mri`](https://github.com/lukeed/mri) so the same config works in CI and one-shot scripts
 - safe action execution: `isCancel` propagation, terminal restore on throw, config validation at load
 - pluggable theme (colors, symbols, messages) via a small custom renderer over `@clack/core`
-- ESM-only, Node 18+, three runtime dependencies
+- ESM-only, Node 20+, three runtime dependencies
 
 ## Install
 
