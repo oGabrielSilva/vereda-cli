@@ -14,6 +14,14 @@ const ptyModule = await (async () => {
 
 const describeOrSkip = ptyModule === null ? describe.skip : describe;
 
+// The pty gives us a real TTY, so we want the interactive menu path. Strip the
+// CI / FORCE_NO_TTY flags the runner injects, otherwise the lib (correctly)
+// detects a non-interactive environment and falls back to plain help text.
+function interactiveEnv(): NodeJS.ProcessEnv {
+  const { CI: _ci, FORCE_NO_TTY: _noTty, ...rest } = process.env;
+  return rest;
+}
+
 describeOrSkip('e2e — interactive navigation (smoke)', () => {
   const pty = ptyModule;
 
@@ -28,7 +36,7 @@ describeOrSkip('e2e — interactive navigation (smoke)', () => {
         cols: 80,
         rows: 24,
         cwd: process.cwd(),
-        env: process.env,
+        env: interactiveEnv(),
       },
     );
 
@@ -68,7 +76,7 @@ describeOrSkip('e2e — interactive navigation (smoke)', () => {
         cols: 80,
         rows: 24,
         cwd: process.cwd(),
-        env: process.env,
+        env: interactiveEnv(),
       },
     );
 
