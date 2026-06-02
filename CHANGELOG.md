@@ -7,6 +7,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.3.0] - 2026-06-01
+
+### Added
+
+- `ctx.text`, `ctx.select<T>` and `ctx.multiselect<T>` — themed prompt helpers on
+  the action context, so actions no longer need to import `@clack/prompts`
+  directly for richer input. Options use `{ value, label, hint? }`; results are
+  the value (or array) **or** a cancel sentinel.
+- `ctx.isCancel(value)` — re-exported cancel check (a type guard) so actions can
+  detect Ctrl+C / Esc on `text` / `select` / `multiselect` without depending on
+  `@clack/prompts`.
+
+This resolves the last of the three real-world workarounds: navigation/input that
+previously required a nested `@clack/prompts` import (which also caused the
+terminal-freeze in `loop` mode) is now first-class on `ctx`.
+
 ## [0.2.0] - 2026-06-01
 
 Resolves the interactive↔argv "catch-22" from real-world feedback: an arg can now

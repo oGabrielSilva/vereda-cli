@@ -56,6 +56,43 @@ export interface ActionLog {
   error(message: string): void;
 }
 
+/**
+ * Sentinel returned by `ctx.text` / `ctx.select` / `ctx.multiselect` when the
+ * user cancels (Ctrl+C / Esc). Detect it with `ctx.isCancel(value)` — this is
+ * the same cancel value `@clack/prompts` uses, re-exported so actions don't have
+ * to import `@clack/prompts` just to check for cancellation.
+ */
+export type CancelValue = symbol;
+
+export interface SelectOption<T> {
+  readonly value: T;
+  readonly label: string;
+  readonly hint?: string;
+}
+
+export interface TextPromptOptions {
+  readonly message: string;
+  readonly placeholder?: string;
+  readonly initialValue?: string;
+  readonly defaultValue?: string;
+  readonly validate?: (value: string) => string | void;
+}
+
+export interface SelectPromptOptions<T> {
+  readonly message: string;
+  readonly options: ReadonlyArray<SelectOption<T>>;
+  readonly initialValue?: T;
+  readonly maxItems?: number;
+}
+
+export interface MultiselectPromptOptions<T> {
+  readonly message: string;
+  readonly options: ReadonlyArray<SelectOption<T>>;
+  readonly initialValues?: readonly T[];
+  readonly required?: boolean;
+  readonly maxItems?: number;
+}
+
 export interface ActionContext<TArgs extends ArgsSchema = Record<string, never>> {
   readonly args: InferArgs<TArgs>;
   readonly command: string;
@@ -71,6 +108,14 @@ export interface ActionContext<TArgs extends ArgsSchema = Record<string, never>>
    */
   readonly rest: Readonly<Record<string, unknown>>;
   confirm(opts: { message: string; initialValue?: boolean }): Promise<boolean>;
+  /** Free-text prompt. Returns the string, or a cancel sentinel — check `ctx.isCancel`. */
+  text(opts: TextPromptOptions): Promise<string | CancelValue>;
+  /** Single-choice prompt. Returns the chosen value, or a cancel sentinel. */
+  select<T>(opts: SelectPromptOptions<T>): Promise<T | CancelValue>;
+  /** Multi-choice prompt. Returns the chosen values, or a cancel sentinel. */
+  multiselect<T>(opts: MultiselectPromptOptions<T>): Promise<T[] | CancelValue>;
+  /** True when a prompt value is the cancel sentinel (user pressed Ctrl+C / Esc). */
+  isCancel(value: unknown): value is CancelValue;
   spinner(message?: string): ActionSpinner;
   readonly log: ActionLog;
 }

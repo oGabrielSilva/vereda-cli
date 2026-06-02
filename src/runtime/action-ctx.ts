@@ -1,4 +1,11 @@
-import { confirm, isCancel, spinner as clackSpinner } from '@clack/prompts';
+import {
+  confirm,
+  isCancel,
+  multiselect as clackMultiselect,
+  select as clackSelect,
+  spinner as clackSpinner,
+  text as clackText,
+} from '@clack/prompts';
 import pc from 'picocolors';
 import type {
   ActionContext,
@@ -7,6 +14,9 @@ import type {
   ArgsSchema,
   Colorizer,
   InferArgs,
+  MultiselectPromptOptions,
+  SelectPromptOptions,
+  TextPromptOptions,
   ThemeConfig,
 } from '../types.js';
 
@@ -41,10 +51,68 @@ export function createCtx<TArgs extends ArgsSchema>(opts: CreateCtxOpts): Action
       return result;
     },
 
+    text: (opts) => clackText(toTextOpts(opts)),
+
+    select: <T>(opts: SelectPromptOptions<T>) => clackSelect<T>(toSelectOpts(opts)),
+
+    multiselect: <T>(opts: MultiselectPromptOptions<T>) =>
+      clackMultiselect<T>(toMultiselectOpts(opts)),
+
+    isCancel: (value): value is symbol => isCancel(value),
+
     spinner: (initialMessage) => buildSpinner(initialMessage),
 
     log: buildLog(colors),
   };
+}
+
+function toTextOpts(opts: TextPromptOptions): Parameters<typeof clackText>[0] {
+  const out: Parameters<typeof clackText>[0] = { message: opts.message };
+  if (opts.placeholder !== undefined) out.placeholder = opts.placeholder;
+  if (opts.initialValue !== undefined) out.initialValue = opts.initialValue;
+  if (opts.defaultValue !== undefined) out.defaultValue = opts.defaultValue;
+  if (opts.validate !== undefined) {
+    const validate = opts.validate;
+    out.validate = (value) => validate(value ?? '') ?? undefined;
+  }
+  return out;
+}
+
+// @clack/prompts types `options` as a conditional `Option<Value>` that doesn't
+// unify with a plain object literal under a generic `Value` + exactOptionalPropertyTypes,
+// so we build the option objects and cast the array to the param type.
+type SelectOpts<T> = Parameters<typeof clackSelect<T>>[0];
+type MultiselectOpts<T> = Parameters<typeof clackMultiselect<T>>[0];
+
+function toClackOptions<T>(
+  options: SelectPromptOptions<T>['options'],
+): SelectOpts<T>['options'] {
+  return options.map((o) => {
+    const opt: { value: T; label: string; hint?: string } = { value: o.value, label: o.label };
+    if (o.hint !== undefined) opt.hint = o.hint;
+    return opt;
+  }) as SelectOpts<T>['options'];
+}
+
+function toSelectOpts<T>(opts: SelectPromptOptions<T>): SelectOpts<T> {
+  const out: SelectOpts<T> = {
+    message: opts.message,
+    options: toClackOptions(opts.options),
+  };
+  if (opts.initialValue !== undefined) out.initialValue = opts.initialValue;
+  if (opts.maxItems !== undefined) out.maxItems = opts.maxItems;
+  return out;
+}
+
+function toMultiselectOpts<T>(opts: MultiselectPromptOptions<T>): MultiselectOpts<T> {
+  const out: MultiselectOpts<T> = {
+    message: opts.message,
+    options: toClackOptions(opts.options),
+  };
+  if (opts.initialValues !== undefined) out.initialValues = [...opts.initialValues];
+  if (opts.required !== undefined) out.required = opts.required;
+  if (opts.maxItems !== undefined) out.maxItems = opts.maxItems;
+  return out;
 }
 
 function buildSpinner(initialMessage?: string): ActionSpinner {

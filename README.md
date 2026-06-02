@@ -152,6 +152,27 @@ type ActionContext<TArgs> = {
   _: readonly string[];                 // raw positionals (command token dropped)
   rest: Readonly<Record<string, unknown>>; // undeclared flags (only when strict: false)
   confirm(opts: { message: string; initialValue?: boolean }): Promise<boolean>;
+  text(opts: {
+    message: string;
+    placeholder?: string;
+    initialValue?: string;
+    defaultValue?: string;
+    validate?: (value: string) => string | void;
+  }): Promise<string | symbol>;
+  select<T>(opts: {
+    message: string;
+    options: { value: T; label: string; hint?: string }[];
+    initialValue?: T;
+    maxItems?: number;
+  }): Promise<T | symbol>;
+  multiselect<T>(opts: {
+    message: string;
+    options: { value: T; label: string; hint?: string }[];
+    initialValues?: T[];
+    required?: boolean;
+    maxItems?: number;
+  }): Promise<T[] | symbol>;
+  isCancel(value: unknown): value is symbol;
   spinner(message?: string): {
     update(msg: string): void;
     success(msg?: string): void;
@@ -164,6 +185,16 @@ type ActionContext<TArgs> = {
     error(msg: string): void;
   };
 };
+```
+
+`text` / `select` / `multiselect` run through vereda's own `@clack/prompts` instance, so theme `messages` / `keyAliases` carry over — no need to import `@clack/prompts` yourself. They return either the value **or** a cancel sentinel (Ctrl+C / Esc); check it with `ctx.isCancel`:
+
+```ts
+action: async (ctx) => {
+  const name = await ctx.text({ message: 'Project name?' });
+  if (ctx.isCancel(name)) return; // name is now narrowed away
+  ctx.log.info(`Hello ${name}`);
+},
 ```
 
 ## Args
@@ -261,8 +292,7 @@ vereda-cli is the only one that bundles config → menu → argv → safe execut
 
 ## Limitations
 
-- Theme covers the menu select prompt. Secondary prompts for arg collection (text, confirm, select-of-enum) use `@clack/prompts` defaults — only `messages` and `keyAliases` cross over via `updateSettings`.
-- `ctx` exposes `confirm`, `spinner` and `log`. For richer prompts (`select` / `multiselect` / `text`) an action can import `@clack/prompts` directly today; in `loop` mode the terminal is restored around each action so this won't freeze the menu. First-class themed `ctx.select` / `ctx.multiselect` / `ctx.text` are planned.
+- Theme covers the menu select prompt. The custom colors/symbols apply to the navigable menu; the `ctx` prompts (`text` / `select` / `multiselect` / `confirm`) and arg-collection prompts use `@clack/prompts` rendering — only `messages` and `keyAliases` cross over via `updateSettings`.
 - No auto-generated `--help` per leaf; the lib prints a flat command list in non-TTY contexts.
 - Positional args can be read raw via `ctx._`, but cannot yet be *declared* (`positional: true`) — planned.
 - Single-command-string identifiers (`deploy`, `config:edit`). No nested namespacing like `aws s3 cp`.

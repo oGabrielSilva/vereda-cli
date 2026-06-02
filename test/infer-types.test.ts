@@ -158,6 +158,37 @@ describe('ActionContext public surface', () => {
     expectTypeOf<Ctx['rest']>().toEqualTypeOf<Readonly<Record<string, unknown>>>();
   });
 
+  it('exposes text, select, multiselect and isCancel', () => {
+    type Ctx = ActionContext;
+    expectTypeOf<Ctx>().toHaveProperty('text');
+    expectTypeOf<Ctx>().toHaveProperty('select');
+    expectTypeOf<Ctx>().toHaveProperty('multiselect');
+    expectTypeOf<Ctx>().toHaveProperty('isCancel');
+  });
+
+  it('infers select/multiselect value types from options generic', () => {
+    defineMenuItem({
+      label: 'X',
+      command: 'x',
+      action: async (ctx) => {
+        const one = await ctx.select({
+          message: 'pick',
+          options: [{ value: 1 as const, label: 'one' }],
+        });
+        expectTypeOf(one).toEqualTypeOf<1 | symbol>();
+
+        const many = await ctx.multiselect({
+          message: 'pick',
+          options: [{ value: 'a' as const, label: 'A' }],
+        });
+        expectTypeOf(many).toEqualTypeOf<'a'[] | symbol>();
+
+        const t = await ctx.text({ message: 'name' });
+        expectTypeOf(t).toEqualTypeOf<string | symbol>();
+      },
+    });
+  });
+
   it('accepts prompt on ArgDef without changing ctx.args inference', () => {
     defineMenuItem({
       label: 'X',

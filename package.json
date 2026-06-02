@@ -2,7 +2,7 @@
   "name": "vereda-cli",
   "packageManager": "yarn@4.6.0",
   "type": "module",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "license": "MIT",
   "description": "Declarative interactive CLI builder over @clack/core. Define a menu config, get a navigable arrow-key UI with safe action execution and argv routing.",
   "author": "Gabriel Silva",
